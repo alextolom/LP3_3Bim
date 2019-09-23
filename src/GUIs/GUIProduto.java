@@ -52,24 +52,26 @@ public class GUIProduto extends JDialog {
     JButton btnCancel = new JButton(iconeCancel);
     JButton btnList = new JButton(iconeListar);
 
-    JLabel labelIdProduto = new JLabel("IdProduto");
+    JLabel labelIdProduto = new JLabel("Id do produto");
     JTextField textFieldIdProduto = new JTextField(20);
-    JLabel labelNomeProduto = new JLabel("NomeProduto");
+    JLabel labelNomeProduto = new JLabel("Nome do produto");
     JTextField textFieldNomeProduto = new JTextField(20);
-    JLabel labelQuantidadeEstoqueProduto = new JLabel("QuantidadeEstoqueProduto");
+    JLabel labelQuantidadeEstoqueProduto = new JLabel("Quantidade em estoque do produto");
     JTextField textFieldQuantidadeEstoqueProduto = new JTextField(20);
-    JLabel labelStatusIdStatus = new JLabel("StatusIdStatus");
-    JTextField textFieldStatusIdStatus = new JTextField(20);
-    JLabel labelUnidadeDeMedidaIdUnidadeDeMedida = new JLabel("UnidadeDeMedidaIdUnidadeDeMedida");
-    JTextField textFieldUnidadeDeMedidaIdUnidadeDeMedida = new JTextField(20);
+    JLabel labelTipoProdutoIdTipoProduto = new JLabel("Tipo de produto");
+    JTextField textFieldTipoProdutoIdTipoProduto = new JTextField(20);
+    JLabel labelFabricanteIdFabricante = new JLabel("Marca do fabricante");
+    JTextField textFieldFabricanteIdFabricante = new JTextField(20);
+    JLabel labelDataProduto = new JLabel("Data do produto");
+    JTextField textFieldDataProduto = new JTextField(20);
 
 //Daos para FK
-    DAOStatus daoStatus = new DAOStatus();
-    DAOUnidadeDeMedida daoUnidadeDeMedida = new DAOUnidadeDeMedida();
+    DAOTipoProduto daoTipoProduto = new DAOTipoProduto();
+    DAOFabricante daoFabricante = new DAOFabricante();
 
 //Entidades para FK
-    Status status = new Status();
-    UnidadeDeMedida unidadeDeMedida = new UnidadeDeMedida();
+    TipoProduto tipoProduto = new TipoProduto();
+    Fabricante Fabricante = new Fabricante();
 
     JPanel pnAvisos = new JPanel();
     JLabel labelAviso = new JLabel("");
@@ -100,7 +102,7 @@ public class GUIProduto extends JDialog {
         btnCancel.setVisible(!visivel);
     }
 
-    private void habilitarAtributos(boolean idProduto, boolean nomeProduto, boolean quantidadeEstoqueProduto, boolean statusIdStatus, boolean unidadeDeMedidaIdUnidadeDeMedida) {
+    private void habilitarAtributos(boolean idProduto, boolean nomeProduto, boolean quantidadeEstoqueProduto, boolean tipoProdutoIdTipoProduto, boolean FabricanteIdFabricante) {
         if (idProduto) {
             textFieldIdProduto.requestFocus();
             textFieldIdProduto.selectAll();
@@ -109,20 +111,21 @@ public class GUIProduto extends JDialog {
         textFieldIdProduto.setEditable(idProduto);
         textFieldNomeProduto.setEditable(nomeProduto);
         textFieldQuantidadeEstoqueProduto.setEditable(quantidadeEstoqueProduto);
-        textFieldStatusIdStatus.setEditable(statusIdStatus);
-        textFieldUnidadeDeMedidaIdUnidadeDeMedida.setEditable(unidadeDeMedidaIdUnidadeDeMedida);
+        textFieldTipoProdutoIdTipoProduto.setEditable(tipoProdutoIdTipoProduto);
+        textFieldFabricanteIdFabricante.setEditable(FabricanteIdFabricante);
 
     }
 
     public void zerarAtributos() {
         textFieldNomeProduto.setText("");
         textFieldQuantidadeEstoqueProduto.setText("");
-        textFieldStatusIdStatus.setText("");
-        textFieldUnidadeDeMedidaIdUnidadeDeMedida.setText("");
+        textFieldTipoProdutoIdTipoProduto.setText("");
+        textFieldFabricanteIdFabricante.setText("");
     }
     Color corPadrao = labelIdProduto.getBackground();
 
     public GUIProduto(Point posicao, Dimension dimensao) {
+        setLocationRelativeTo(null);
         setTitle("CRUD - Produto");
         setSize(dimensao);//tamanho da janela
         setLayout(new BorderLayout());//informa qual gerenciador de layout será usado
@@ -158,8 +161,14 @@ public class GUIProduto extends JDialog {
         UsarGridBagLayout usarGridBagLayout = new UsarGridBagLayout(centro);
         usarGridBagLayout.add(labelNomeProduto, textFieldNomeProduto, corPadrao);
         usarGridBagLayout.add(labelQuantidadeEstoqueProduto, textFieldQuantidadeEstoqueProduto, corPadrao);
-        usarGridBagLayout.add(labelStatusIdStatus, textFieldStatusIdStatus, Color.yellow);
-        usarGridBagLayout.add(labelUnidadeDeMedidaIdUnidadeDeMedida, textFieldUnidadeDeMedidaIdUnidadeDeMedida, Color.yellow);
+        labelQuantidadeEstoqueProduto.setToolTipText("Informe a quantidade em estoque do produto");
+        textFieldQuantidadeEstoqueProduto.setToolTipText("Informe a quantidade em estoque do produto");
+        usarGridBagLayout.add(labelTipoProdutoIdTipoProduto, textFieldTipoProdutoIdTipoProduto, Color.yellow);
+        labelTipoProdutoIdTipoProduto.setToolTipText("Tipo de produto (exemplo: fruta, eletrônico)");
+        textFieldTipoProdutoIdTipoProduto.setToolTipText("Tipo de produto (exemplo: fruta, eletrônico)");
+        usarGridBagLayout.add(labelFabricanteIdFabricante, textFieldFabricanteIdFabricante, Color.yellow);
+        usarGridBagLayout.add(labelDataProduto, textFieldDataProduto, Color.CYAN);
+        textFieldDataProduto.setToolTipText("Informe a data no formato: DD/MM/yyyy");
         pnAvisos.add(labelAviso);
         pnAvisos.setBackground(Color.yellow);
         cp.add(toolbar1, BorderLayout.NORTH);
@@ -212,8 +221,9 @@ public class GUIProduto extends JDialog {
                         if (produto != null) { //se encontrou na lista
                             textFieldNomeProduto.setText(String.valueOf(produto.getNomeProduto()));
                             textFieldQuantidadeEstoqueProduto.setText(String.valueOf(produto.getQuantidadeEstoqueProduto()));
-                            textFieldStatusIdStatus.setText(String.valueOf(produto.getStatusIdStatus().getIdStatus() + "-" + produto.getStatusIdStatus().getNomeStatus()));
-                            textFieldUnidadeDeMedidaIdUnidadeDeMedida.setText(String.valueOf(produto.getUnidadeDeMedidaIdUnidadeDeMedida().getIdUnidadeDeMedida() + "-" + produto.getUnidadeDeMedidaIdUnidadeDeMedida().getNomeUnidadeDeMedida()));
+                            textFieldTipoProdutoIdTipoProduto.setText(String.valueOf(produto.getTipoProdutoIdTipoProduto().getIdTipoProduto() + "-" + produto.getTipoProdutoIdTipoProduto().getNomeTipoProduto()));
+                            textFieldFabricanteIdFabricante.setText(String.valueOf(produto.getFabricanteIdFabricante().getIdFabricante() + "-" + produto.getFabricanteIdFabricante().getNomeFabricante()));
+                            textFieldDataProduto.setText(sdf.format(produto.getDataProduto()));
                             atvBotoes(false, true, true, true);
                             habilitarAtributos(true, false, false, false, false);
                             labelAviso.setText("Encontrou - clic [Pesquisar], [Alterar] ou [Excluir]");
@@ -279,8 +289,15 @@ public class GUIProduto extends JDialog {
                     deuRuim = true;
                     textFieldQuantidadeEstoqueProduto.setBackground(Color.red);
                 }
-                produto.setStatusIdStatus(daoStatus.obter(Integer.valueOf(textFieldStatusIdStatus.getText().split("-")[0])));
-                produto.setUnidadeDeMedidaIdUnidadeDeMedida(daoUnidadeDeMedida.obter(String.valueOf(textFieldUnidadeDeMedidaIdUnidadeDeMedida.getText().split("-")[0])));
+                try{
+                    produto.setDataProduto(sdf.parse(textFieldDataProduto.getText()));
+                }catch (Exception erro5) {
+                    deuRuim = true;
+                    textFieldDataProduto.setBackground(Color.red);
+                }
+                
+                produto.setTipoProdutoIdTipoProduto(daoTipoProduto.obter(Integer.valueOf(textFieldTipoProdutoIdTipoProduto.getText().split("-")[0])));
+                produto.setFabricanteIdFabricante(daoFabricante.obter(Integer.valueOf(textFieldFabricanteIdFabricante.getText().split("-")[0])));
                 if (!deuRuim) {
                     if (acao.equals("insert")) {
                         daoProduto.inserir(produto);
@@ -340,48 +357,48 @@ public class GUIProduto extends JDialog {
                 }
             }
         });// ----------------   Janela Pesquisar para FKs -----------------
-        textFieldStatusIdStatus.addActionListener(new ActionListener() {
+        textFieldTipoProdutoIdTipoProduto.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e
             ) {
-                List<String> listaAuxiliar = daoStatus.listInOrderNomeStrings("id");
+                List<String> listaAuxiliar = daoTipoProduto.listInOrderNomeStrings("id");
                 if (listaAuxiliar.size() > 0) {
                     String selectedItem = new JanelaPesquisar(listaAuxiliar, getBounds().x - getWidth() / 2 + getWidth() + 5,
-                            textFieldStatusIdStatus.getBounds().y + textFieldStatusIdStatus.getHeight()).getValorRetornado();
+                            textFieldTipoProdutoIdTipoProduto.getBounds().y + textFieldTipoProdutoIdTipoProduto.getHeight()).getValorRetornado();
                     if (!selectedItem.equals("")) {
                         String[] aux = selectedItem.split("-");
-                        textFieldStatusIdStatus.setText(selectedItem);
+                        textFieldTipoProdutoIdTipoProduto.setText(selectedItem);
 
                         //preparar para salvar
-                        status = daoStatus.obter(Integer.valueOf(aux[0]));
+                        tipoProduto = daoTipoProduto.obter(Integer.valueOf(aux[0]));
 
                     } else {
-                        textFieldStatusIdStatus.requestFocus();
-                        textFieldStatusIdStatus.selectAll();
+                        textFieldTipoProdutoIdTipoProduto.requestFocus();
+                        textFieldTipoProdutoIdTipoProduto.selectAll();
                     }
                 } else {
                     JOptionPane.showMessageDialog(cp, "Não há nenhum produto cadastrado.");
                 }
             }
         });
-        textFieldUnidadeDeMedidaIdUnidadeDeMedida.addActionListener(new ActionListener() {
+        textFieldFabricanteIdFabricante.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e
             ) {
-                List<String> listaAuxiliar = daoUnidadeDeMedida.listInOrderNomeStrings("id");
+                List<String> listaAuxiliar = daoFabricante.listInOrderNomeStrings("id");
                 if (listaAuxiliar.size() > 0) {
                     String selectedItem = new JanelaPesquisar(listaAuxiliar, getBounds().x - getWidth() / 2 + getWidth() + 5,
-                            textFieldUnidadeDeMedidaIdUnidadeDeMedida.getBounds().y + textFieldUnidadeDeMedidaIdUnidadeDeMedida.getHeight()).getValorRetornado();
+                            textFieldFabricanteIdFabricante.getBounds().y + textFieldFabricanteIdFabricante.getHeight()).getValorRetornado();
                     if (!selectedItem.equals("")) {
                         String[] aux = selectedItem.split("-");
-                        textFieldUnidadeDeMedidaIdUnidadeDeMedida.setText(selectedItem);
+                        textFieldFabricanteIdFabricante.setText(selectedItem);
 
                         //preparar para salvar
-                        unidadeDeMedida = daoUnidadeDeMedida.obter(String.valueOf(aux[0]));
+                        Fabricante = daoFabricante.obter(Integer.valueOf(aux[0]));
 
                     } else {
-                        textFieldUnidadeDeMedidaIdUnidadeDeMedida.requestFocus();
-                        textFieldUnidadeDeMedidaIdUnidadeDeMedida.selectAll();
+                        textFieldFabricanteIdFabricante.requestFocus();
+                        textFieldFabricanteIdFabricante.selectAll();
                     }
                 } else {
                     JOptionPane.showMessageDialog(cp, "Não há nenhum produto cadastrado.");
@@ -410,26 +427,26 @@ public class GUIProduto extends JDialog {
                 textFieldQuantidadeEstoqueProduto.setBackground(corPadrao);
             }
         });
-        textFieldStatusIdStatus.addFocusListener(new FocusListener() { //ao receber o foco, fica verde
+        textFieldTipoProdutoIdTipoProduto.addFocusListener(new FocusListener() { //ao receber o foco, fica verde
             @Override
             public void focusGained(FocusEvent fe) {
-                textFieldStatusIdStatus.setBackground(Color.orange);
+                textFieldTipoProdutoIdTipoProduto.setBackground(Color.orange);
             }
 
             @Override
             public void focusLost(FocusEvent fe) { //ao perder o foco, fica branco
-                textFieldStatusIdStatus.setBackground(Color.yellow);
+                textFieldTipoProdutoIdTipoProduto.setBackground(Color.yellow);
             }
         });
-        textFieldUnidadeDeMedidaIdUnidadeDeMedida.addFocusListener(new FocusListener() { //ao receber o foco, fica verde
+        textFieldFabricanteIdFabricante.addFocusListener(new FocusListener() { //ao receber o foco, fica verde
             @Override
             public void focusGained(FocusEvent fe) {
-                textFieldUnidadeDeMedidaIdUnidadeDeMedida.setBackground(Color.orange);
+                textFieldFabricanteIdFabricante.setBackground(Color.orange);
             }
 
             @Override
             public void focusLost(FocusEvent fe) { //ao perder o foco, fica branco
-                textFieldUnidadeDeMedidaIdUnidadeDeMedida.setBackground(Color.yellow);
+                textFieldFabricanteIdFabricante.setBackground(Color.yellow);
             }
         });
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); //antes de sair do sistema, grava os dados da lista em disco
